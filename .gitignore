@@ -1,0 +1,18 @@
+# Visual Studio & .NET temporary files
+.vs/
+*.user
+*.suo
+*.userprefs
+*.sln.docstates
+
+# Build Output (compiled code)
+[Bb]in/
+[Oo]bj/
+
+# Debug files
+*.pdb
+*.cache
+
+# Generated Benchmark Results
+**/Results/
+*_Performance.png
