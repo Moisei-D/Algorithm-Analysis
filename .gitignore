@@ -12,7 +12,3 @@
 # Debug files
 *.pdb
 *.cache
-
-# Generated Benchmark Results
-**/Results/
-*_Performance.png

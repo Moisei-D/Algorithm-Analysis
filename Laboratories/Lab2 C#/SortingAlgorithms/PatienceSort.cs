@@ -10,94 +10,77 @@ namespace Lab2.SortingAlgorithms
             if (arr == null || arr.Length < 2)
                 return;
 
-            // List of piles, where each pile is a list of integers
+            // List of piles, where each pile is a list of integers (treated as a stack)
             var piles = new List<List<int>>();
+
+            // Optimization for Phase 1: Maintain a list of top cards for faster cache-friendly binary search
+            // This avoids resolving multiple references (List->List->int) during the search
+            var pileTops = new List<int>();
 
             // Phase 1: Distribute elements into piles
             foreach (int x in arr)
             {
-                // Find the first pile where the top element >= x (Binary Search)
-                // If no such pile exists, create a new pile
-
-                int pileIndex = FindPile(piles, x);
+                // Find the leftmost pile where the top element >= x
+                int pileIndex = BinarySearchPiles(pileTops, x);
 
                 if (pileIndex == -1)
                 {
                     // Create new pile
-                    var newPile = new List<int> { x };
-                    piles.Add(newPile);
+                    piles.Add(new List<int> { x });
+                    pileTops.Add(x);
                 }
                 else
                 {
                     // Add to existing pile
                     piles[pileIndex].Add(x);
+                    pileTops[pileIndex] = x;
                 }
             }
 
-            // Phase 2: Merge piles using a Min-Heap (Priority Queue) approach
-            // Since we can't assume C# 6+ PriorityQueue is available in all environments,
-            // we'll do a simple K-way merge implementation
+            // Phase 2: Merge piles efficiently
+            // Use a PriorityQueue to efficiently find the minimum top card among all piles.
+            // PriorityQueue stores the pile index, priority is the value of the top card.
+            var pq = new PriorityQueue<int, int>();
 
-            // To reconstruct the sorted array, we repeatedly pick the smallest visible top card
-            // Note: In patience sort logic for LIS, we stack distinct piles.
-            // For sorting, "piles" are just sorted stacks (buckets).
-            // Actually, standard Patience Sort requires merging piles efficiently.
+            for (int i = 0; i < piles.Count; i++)
+            {
+                // Enqueue the index of the pile, with the value of its top card as priority
+                // The top card is at the end of the List (Stack behavior)
+                pq.Enqueue(i, piles[i][piles[i].Count - 1]);
+            }
 
-            // Reconstruct array
             for (int i = 0; i < arr.Length; i++)
             {
-                int minVal = int.MaxValue;
-                int minPileIndex = -1;
+                // 1. Get the pile index with the smallest top card
+                int winningPileIndex = pq.Dequeue();
+                var winningPile = piles[winningPileIndex];
 
-                for (int j = 0; j < piles.Count; j++)
+                // 2. Pop the card (smallest globally) and place it in the array
+                int val = winningPile[winningPile.Count - 1];
+                arr[i] = val;
+                winningPile.RemoveAt(winningPile.Count - 1);
+
+                // 3. If the pile still has cards, check the new top card and add back to PQ
+                if (winningPile.Count > 0)
                 {
-                    var pile = piles[j];
-                    if (pile.Count > 0)
-                    {
-                        // In Patience Sort, piles are sorted such that bottom is smallest?
-                        // Actually, binary placement puts SMALLER elements on TOP.
-                        // So the last element added (Top of Stack) is the smallest in that pile context?
-                        // Correct Patience Sort Logic:
-                        // - Pile top is always smaller than element below it.
-                        // - Piles are sorted from left to right by their top cards.
-
-                        int topVal = pile[pile.Count - 1]; // Top of stack
-                        if (topVal < minVal)
-                        {
-                            minVal = topVal;
-                            minPileIndex = j;
-                        }
-                    }
-                }
-
-                arr[i] = minVal;
-                var winningPile = piles[minPileIndex];
-                winningPile.RemoveAt(winningPile.Count - 1); // Pop
-
-                // If pile empty, we could remove it to optimize, but index stability matters for loop
-                if (winningPile.Count == 0)
-                {
-                    piles.RemoveAt(minPileIndex);
-                    // Decrement i is not needed, but loop bounds change
-                    // Optimization: We iterate j < piles.Count
+                    int newTop = winningPile[winningPile.Count - 1];
+                    pq.Enqueue(winningPileIndex, newTop);
                 }
             }
         }
 
-        // Binary search to find the pile index
-        private static int FindPile(List<List<int>> piles, int value)
+        // Binary search on the 'pileTops' list
+        private static int BinarySearchPiles(List<int> tops, int value)
         {
-            // We need to find the leftmost pile whose TOP card is >= value
             int left = 0;
-            int right = piles.Count - 1;
+            int right = tops.Count - 1;
             int bestPile = -1;
 
             while (left <= right)
             {
                 int mid = left + (right - left) / 2;
-                int topCard = piles[mid][piles[mid].Count - 1];
 
-                if (topCard >= value)
+                if (tops[mid] >= value)
                 {
                     bestPile = mid;
                     right = mid - 1; // Try to find a pile further to the left
