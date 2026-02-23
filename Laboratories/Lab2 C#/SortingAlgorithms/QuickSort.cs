@@ -1,49 +1,44 @@
 using System;
 namespace Lab2.SortingAlgorithms
 {
-    public static class QuickSort
+    public static class QuickSortBasic
     {
-        public static void Sort(int[] arr, int left, int right)
+        public static void Sort(int[] arr)
+        {
+            if (arr == null || arr.Length < 2)
+            {
+                return;
+            }
+
+            Sort(arr, 0, arr.Length - 1);
+        }
+
+        private static void Sort(int[] arr, int left, int right)
         {
             if (left < right)
             {
-                int pivotIndex = HoarePartition(arr, left, right);
-                Sort(arr, left, pivotIndex);
+                int pivotIndex = LomutoPartition(arr, left, right);
+                Sort(arr, left, pivotIndex - 1);
                 Sort(arr, pivotIndex + 1, right);
             }
         }
 
-        public static void Sort(int[] arr)
+        private static int LomutoPartition(int[] arr, int left, int right)
         {
-            Sort(arr, 0, arr.Length - 1);
-        }
-
-        private static int HoarePartition(int[] arr, int left, int right)
-        {
-            int pivot = arr[left]; //Choosing first element as pivot
+            int pivot = arr[right];
             int i = left - 1;
-            int j = right + 1;
-            while (true)
+
+            for (int j = left; j < right; j++)
             {
-                //Move i to the rigth until finding element >= pivot
-                do
+                if (arr[j] <= pivot)
                 {
                     i++;
-                } while (arr[i] < pivot);
-
-                //Move j to the left until finding element <= pivot
-                do
-                {
-                    j--;
-                } while (arr[j] > pivot);
-
-                //If pointers crossed, return partition index
-                if (i >= j)
-                    return j;
-
-                //Swap elements at i and j
-                Swap(arr, i, j);
+                    Swap(arr, i, j);
+                }
             }
+
+            Swap(arr, i + 1, right);
+            return i + 1;
         }
 
         private static void Swap(int[] arr, int i, int j)
@@ -52,7 +47,5 @@ namespace Lab2.SortingAlgorithms
             arr[i] = arr[j];
             arr[j] = temp;
         }
-
-
     }
 }

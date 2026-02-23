@@ -29,10 +29,14 @@ namespace Lab2
 
             var algorithms = new Dictionary<string, Action<int[]>>
             {
-                { "MergeSort", MergeSort.Sort },
-                { "QuickSort", QuickSort.Sort },
-                { "HeapSort", HeapSort.Sort },
-                { "PatienceSort", PatienceSort.Sort }
+                { "MergeSort (Basic)", MergeSortBasic.Sort },
+                { "MergeSort (Optimized)", MergeSortOptimized.Sort },
+                { "QuickSort (Basic)", QuickSortBasic.Sort },
+                { "QuickSort (Optimized)", QuickSortOptimized.Sort },
+                { "HeapSort (Basic)", HeapSortBasic.Sort },
+                { "HeapSort (Optimized)", HeapSortOptimized.Sort },
+                { "PatienceSort (Basic)", PatienceSortBasic.Sort },
+                { "PatienceSort (Optimized)", PatienceSortOptimized.Sort }
             };
 
             Console.WriteLine($"Benchmarking {algorithms.Count} algorithms across {sizes.Length} sizes...");
@@ -133,8 +137,22 @@ namespace Lab2
 
         static void DisplaySummaryTable(List<BenchmarkResult> results)
         {
-            Console.WriteLine($"{"Algorithm",-15} {"Random",-12} {"Sorted",-12} {"Reversed",-12} {"Duplicates",-12}");
-            Console.WriteLine(new string('─', 80));
+            int algoWidth = Math.Max("Algorithm".Length, results.Max(r => r.AlgorithmName.Length));
+            int timeWidth = 12;
+
+            string topLine = $"┌{new string('─', algoWidth + 2)}┬{new string('─', timeWidth + 2)}┬{new string('─', timeWidth + 2)}┬{new string('─', timeWidth + 2)}┬{new string('─', timeWidth + 2)}┐";
+            string midLine = $"├{new string('─', algoWidth + 2)}┼{new string('─', timeWidth + 2)}┼{new string('─', timeWidth + 2)}┼{new string('─', timeWidth + 2)}┼{new string('─', timeWidth + 2)}┤";
+            string bottomLine = $"└{new string('─', algoWidth + 2)}┴{new string('─', timeWidth + 2)}┴{new string('─', timeWidth + 2)}┴{new string('─', timeWidth + 2)}┴{new string('─', timeWidth + 2)}┘";
+
+            string FormatTime(double value)
+            {
+                string formatted = value.ToString("F3");
+                return $"{formatted.PadLeft(timeWidth - 3)} ms";
+            }
+
+            Console.WriteLine(topLine);
+            Console.WriteLine($"│ {"Algorithm".PadRight(algoWidth)} │ {"Random".PadRight(timeWidth)} │ {"Sorted".PadRight(timeWidth)} │ {"Reversed".PadRight(timeWidth)} │ {"Duplicates".PadRight(timeWidth)} │");
+            Console.WriteLine(midLine);
 
             var algorithms = results.Select(r => r.AlgorithmName).Distinct();
 
@@ -146,8 +164,10 @@ namespace Lab2
                 var reversed = algoResults.FirstOrDefault(r => r.ArrayType == "Reversed")?.AverageTimeMs ?? 0;
                 var duplicates = algoResults.FirstOrDefault(r => r.ArrayType == "Duplicates")?.AverageTimeMs ?? 0;
 
-                Console.WriteLine($"{algo,-15} {random,9:F3} ms  {sorted,9:F3} ms  {reversed,9:F3} ms  {duplicates,9:F3} ms");
+                Console.WriteLine($"│ {algo.PadRight(algoWidth)} │ {FormatTime(random)} │ {FormatTime(sorted)} │ {FormatTime(reversed)} │ {FormatTime(duplicates)} │");
             }
+
+            Console.WriteLine(bottomLine);
         }
 
         static void GenerateLineGraphs(List<BenchmarkResult> results, int[] sizes)

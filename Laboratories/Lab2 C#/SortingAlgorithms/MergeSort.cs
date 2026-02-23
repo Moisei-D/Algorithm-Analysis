@@ -2,9 +2,19 @@ using System;
 
 namespace Lab2.SortingAlgorithms
 {
-    public static class MergeSort
+    public static class MergeSortBasic
     {
-        public static void Sort(int[] arr, int left, int right)
+        public static void Sort(int[] arr)
+        {
+            if (arr == null || arr.Length < 2)
+            {
+                return;
+            }
+
+            Sort(arr, 0, arr.Length - 1);
+        }
+
+        private static void Sort(int[] arr, int left, int right)
         {
             if (left < right)
             {
@@ -15,24 +25,28 @@ namespace Lab2.SortingAlgorithms
             }
         }
 
-        public static void Sort(int[] arr)
-        {
-            Sort(arr, 0, arr.Length - 1);
-        }
-
         private static void Merge(int[] arr, int l, int m, int r)
         {
             int[] leftArr = arr[l..(m + 1)];
             int[] rightArr = arr[(m + 1)..(r + 1)];
-            int i = 0, j = 0, k = l;
+            int i = 0;
+            int j = 0;
+            int k = l;
 
             while (i < leftArr.Length && j < rightArr.Length)
             {
-                arr[k++] = (leftArr[i] <= rightArr[j]) ? leftArr[i++] : rightArr[j++];
+                arr[k++] = leftArr[i] <= rightArr[j] ? leftArr[i++] : rightArr[j++];
             }
 
-            while (i < leftArr.Length) arr[k++] = leftArr[i++];
-            while (j < rightArr.Length) arr[k++] = rightArr[j++];
+            while (i < leftArr.Length)
+            {
+                arr[k++] = leftArr[i++];
+            }
+
+            while (j < rightArr.Length)
+            {
+                arr[k++] = rightArr[j++];
+            }
         }
     }
 }

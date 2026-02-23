@@ -1,0 +1,609 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx} 
+\usepackage{subcaption}
+\usepackage{amsmath} 
+\usepackage{fancyhdr} 
+\usepackage{geometry} 
+\usepackage{dirtytalk} 
+\usepackage[english]{babel}
+\usepackage{csquotes}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{array}
+\usepackage{caption}
+\usepackage{float}  
+\usepackage{enumitem}
+\usepackage{titlesec}
+
+% Code styling
+\lstset{
+    basicstyle=\ttfamily\footnotesize,
+    backgroundcolor=\color{lightgray!20},
+    keywordstyle=\color{blue},
+    commentstyle=\color{green!50!black},
+    stringstyle=\color{red},
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    stepnumber=1,
+    numbersep=10pt,
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    frame=single,
+    tabsize=2,
+    breaklines=true,
+    breakatwhitespace=false,
+    escapeinside={\%*}{*)},
+    morekeywords={void, size, setup, draw, pushMatrix, popMatrix, int, if, while, return, do, for, each, in, swap, true, false}
+}
+
+\titleformat{\section}
+  {\centering\bfseries\Large}
+  {\thesection.}
+  {0.6em}
+  {}
+\linespread{1.25} 
+\setlength{\parindent}{0.8cm} 
+\setlength{\parskip}{0em} 
+\renewcommand{\headrulewidth}{0pt} 
+\geometry{a4paper, portrait, margin=1in}
+\setlength{\headheight}{14.49998pt}
+\graphicspath{ {images/} }
+
+\begin{document}
+\begin{titlepage}
+   \begin{center}
+    \textbf{\large Ministry of Education of Republic of Moldova}\\[0.1cm]
+    \textbf{\large Technical University of Moldova}\\[0.1cm]
+    \textbf{\large Faculty of Computers, Informatics and Microelectronics}\\[1.2cm]
+    
+    \vspace{45 mm}
+    
+    \textsc{\Large Laboratory work 2:}\\[0.1cm]    
+    \textsc{\Large Empirical Analysis of Comparison-Based and Non-Standard Sorting Algorithms}\\[0.4cm]
+    
+    \vspace{70mm}
+    
+    \begin{minipage}[t]{0.4\textwidth}
+    \begin{flushleft} \large
+    \emph{Author:} \\                     
+    st. gr. FAF-241 \\
+    \emph{Verified:} \\ 
+    asist. univ. \\
+    \end{flushleft}
+    \end{minipage}
+    ~
+    \begin{minipage}[t]{0.4\textwidth}
+    \begin{flushright} \large
+    \emph{} \\
+    Moisei Daniel\\
+    \emph{} \\
+    Fiștic Cristofor 
+    \end{flushright}
+    \end{minipage}\\[3cm]
+    
+    \vspace{5 mm}
+    \large Chișinău - 2025\\[0.5cm]
+    
+    \vfill
+    \end{center}
+\end{titlepage}
+
+\clearpage
+\thispagestyle{empty}
+\tableofcontents
+
+\clearpage
+\setcounter{page}{2}
+\pagestyle{fancy}
+\fancyhf{}
+\rhead{\thepage}
+
+\section*{ALGORITHM ANALYSIS}
+\addcontentsline{toc}{section}{ALGORITHM ANALYSIS}
+
+\subsection*{Objective}
+\addcontentsline{toc}{subsection}{Objective}
+\begin{enumerate}[itemsep=1pt]
+\item Implement basic and optimized versions of MergeSort, QuickSort, HeapSort, and PatienceSort; 
+\item Analyze QuickSort partitioning: comparing Lomuto and Hoare schemes with optimized pivot selection;
+\item Evaluate algorithms against Random, Sorted, Reversed, and Duplicate data; 
+\item Analyze execution time complexity for Best, Average, and Worst cases; 
+\item Test algorithm robustness against extreme cases (Negatives, Doubles);
+\item Deduce conclusions based on empirical graphs and theoretical knowledge.   
+\end{enumerate}
+
+\subsection*{Tasks:}
+\addcontentsline{toc}{subsection}{Tasks}
+\begin{enumerate}[itemsep=1pt]
+  \item Implement basic and optimized versions of MergeSort, QuickSort, HeapSort, and PatienceSort; 
+  \item Analyze QuickSort partitioning: comparing Lomuto and Hoare schemes with optimized pivot selection;
+  \item Evaluate algorithms against Random, Sorted, Reversed, and Duplicate data; 
+  \item Analyze execution time complexity for Best, Average, and Worst cases; 
+  \item Test algorithm robustness against extreme cases (Negatives, Doubles);
+  \item Deduce conclusions based on empirical graphs and theoretical knowledge.   
+\end{enumerate}
+
+\subsection*{Theoretical Notes:}
+\addcontentsline{toc}{subsection}{Theoretical Notes}
+\hspace{0.7cm} Empirical analysis is a critical tool for understanding how algorithms behave on real hardware, often revealing nuances that Big O notation overlooks. Sorting algorithms are traditionally categorized by their average and worst-case complexities.
+
+In this analysis, we focus on:
+\begin{enumerate}[itemsep=1pt]
+  \item \textbf{Divide and Conquer:} Breaking problems into sub-problems (MergeSort, QuickSort).
+  \item \textbf{Heap Data Structures:} Utilizing priority-based ordering (HeapSort).
+  \item \textbf{Patience Sorting:} A non-standard approach inspired by the card game Solitaire, often used to find the Longest Increasing Subsequence.
+\end{enumerate}
+
+Execution time is the primary metric here, as it captures the overhead of recursive calls, memory allocation, and the impact of input ordering on pivot selection or pile creation.
+
+\subsection*{Introduction:}
+\addcontentsline{toc}{subsection}{Introduction}
+\hspace{0.8cm} Sorting is one of the most fundamental operations in computer science. While simple algorithms like Bubble Sort offer $O(n^2)$ complexity, more advanced algorithms aim for $O(n \log n)$. However, the actual performance can vary wildly based on the initial state of the data. 
+
+In this laboratory, we implement eight sorting variants: a basic and an optimized implementation for each algorithm. \textbf{MergeSort} is known for its stability and guaranteed $O(n \log n)$ time. \textbf{QuickSort} is often faster in practice but can degrade to $O(n^2)$ if the pivot selection is poor. \textbf{HeapSort} provides a reliable $O(n \log n)$ performance without the extra memory requirements of MergeSort. Finally, \textbf{PatienceSort} offers a unique perspective on sorting by organizing data into "piles" and merging them.
+
+\subsection*{Comparison Metric:}
+\addcontentsline{toc}{subsection}{Comparison Metric}
+\hspace{0.8cm} The comparison metric for this laboratory work is the execution time measured in milliseconds (ms) using the \texttt{Stopwatch} class in C\#. Each test is averaged over multiple runs to minimize system noise.
+
+\subsection*{Input Format:}
+\addcontentsline{toc}{subsection}{Input Format}
+\hspace{0.8cm} To thoroughly stress the algorithms, four types of input arrays were generated:
+\begin{itemize}
+    \item \textbf{Random:} Elements in no particular order.
+    \item \textbf{Sorted:} Elements already in ascending order (tests best/worst cases).
+    \item \textbf{Reversed:} Elements in descending order.
+    \item \textbf{Duplicates:} Arrays containing many repeating values.
+\end{itemize}
+The array sizes range from 10 to 15,000 elements to observe the growth curves.
+
+\pagebreak
+
+\section*{IMPLEMENTATION \& SCENARIO ANALYSIS}
+\addcontentsline{toc}{section}{IMPLEMENTATION \& SCENARIO ANALYSIS}
+
+\hspace{0.8cm} The algorithms were implemented in C\#. Below we detail the implementation logic, complexity scenarios, and how each handles extreme data cases.
+
+\subsection*{MergeSort (Basic)}
+\addcontentsline{toc}{subsection}{MergeSort (Basic)}
+\hspace{0.8cm} MergeSort is a stable, divide-and-conquer algorithm that guarantees performance by splitting the data into halves and merging them.
+
+\noindent\hspace*{0.8cm}\textit{Extended Pseudocode:}
+\begin{lstlisting}[caption={MergeSort Recursive Structure and Merge Logic}]
+MergeSort(A, p, r):
+    if p < r:
+        mid = (p + r) / 2
+        MergeSort(A, p, mid)
+        MergeSort(A, mid + 1, r)
+        Merge(A, p, mid, r)
+
+Merge(A, p, q, r):
+    L = A[p...q], R = A[q+1...r] // Create copies
+    i = 0, j = 0, k = p
+    while i < L.length and j < R.length:
+        if L[i] <= R[j]: A[k] = L[i]; i++
+        else: A[k] = R[j]; j++
+        k++
+    // Append remaining elements
+\end{lstlisting}
+
+\noindent\hspace*{0.8cm}\textit{Implementation:}
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.9\textwidth]{images/mergesort_code.png}
+  \caption{MergeSort implementation in C\#}
+\end{figure}
+
+\noindent\hspace*{0.8cm}\textit{Complexity Scenarios:}
+\begin{itemize}
+    \item \textbf{Best/Average/Worst Case:} Always $O(n \log n)$. Because the split and merge process is deterministic and doesn't depend on the values, the timing is extremely stable.
+\end{itemize}
+
+\noindent\hspace*{0.8cm}\textit{Extreme Cases:}
+\begin{itemize}
+    \item \textbf{Negatives/Doubles:} Works perfectly. Since it uses standard comparison operators, floating point precision or negative signs do not affect the logic.
+    \item \textbf{Large Duplicates:} Highly efficient. Stability ensures equal values stay in their relative positions.
+\end{itemize}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.7\textwidth]{images/terminal_results_mergesort_basic_15000.png}
+  \caption{Execution times for 15,000 elements across various input types (Basic)}
+\end{figure}
+
+\noindent\hspace*{0.8cm}\textit{Results:}
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{images/MergeSort_Basic_Performance.png}
+  \caption{MergeSort (Basic) Performance Graph}
+\end{figure}
+
+\pagebreak
+
+\subsection*{MergeSort (Optimized)}
+\addcontentsline{toc}{subsection}{MergeSort (Optimized)}
+\hspace{0.8cm} The optimized version keeps the merge logic but reuses a single buffer across all merges and skips the merge when the two halves are already in order.
+
+\noindent\hspace*{0.8cm}\textit{Implementation:}
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.9\textwidth]{images/mergesort_optimized_code.png}
+  \caption{MergeSort (Optimized) implementation in C\#}
+\end{figure}
+
+\noindent\hspace*{0.8cm}\textit{Optimization Summary:}
+The optimized version reduced Random from 2.265 ms to 1.858 ms and Sorted from 1.542 ms to 0.174 ms; Reversed improved from 1.787 ms to 0.895 ms, and Duplicates from 1.996 ms to 1.566 ms.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.7\textwidth]{images/terminal_results_mergesort_optimized_15000.png}
+  \caption{Execution times for 15,000 elements across various input types (Optimized)}
+\end{figure}
+
+\noindent\hspace*{0.8cm}\textit{Results:}
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{images/MergeSort_Optimized_Performance.png}
+  \caption{MergeSort (Optimized) Performance Graph}
+\end{figure}
+
+\pagebreak
+
+\subsection*{QuickSort (Basic)}
+\addcontentsline{toc}{subsection}{QuickSort (Basic)}
+\hspace{0.8cm} The basic QuickSort implementation uses the Lomuto partition scheme with the last element as the pivot.
+
+
+
+\noindent\hspace*{0.8cm}\textit{1. Lomuto Partition (Standard):}
+\begin{lstlisting}[caption={Lomuto Partition Scheme}]
+LomutoPartition(A, p, r):
+    pivot = A[r] // Pivot is the last element
+    i = p - 1
+    for j = p to r - 1:
+        if A[j] <= pivot:
+            i = i + 1
+            swap A[i], A[j]
+    swap A[i + 1], A[r]
+    return i + 1
+\end{lstlisting}
+
+\noindent\hspace*{0.8cm}\textit{2. QuickSort Recursive Structure:}
+\begin{lstlisting}[caption={QuickSort Recursive Implementation (Lomuto)}]
+QuickSort(A, left, right):
+    if left < right:
+        pivotIndex = LomutoPartition(A, left, right)
+        QuickSort(A, left, pivotIndex - 1)
+        QuickSort(A, pivotIndex + 1, right)
+\end{lstlisting}
+\pagebreak
+\noindent\hspace*{0.8cm}\textit{Implementation:}
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{images/quicksort_basic_code.png}
+  \caption{QuickSort (Basic) implementation in C\#}
+\end{figure}
+
+\noindent\hspace*{0.8cm}\textit{Complexity Scenarios:}
+\begin{itemize}
+    \item \textbf{Best Case:} $O(n \log n)$ - When the pivot consistently lands in the middle.
+    \item \textbf{Average Case:} $O(n \log n)$.
+    \item \textbf{Worst Case:} $O(n^2)$ - Occurs when the pivot is the smallest or largest element (Sorted or Reversed data).
+\end{itemize}
+
+\noindent\hspace*{0.8cm}\textit{Extreme Cases:}
+\begin{itemize}
+    \item \textbf{Negatives/Doubles:} Handles them well.
+    \item \textbf{Stability:} QuickSort is \textbf{unstable}; relative order of equal elements (like doubles with different metadata) is not preserved.
+\end{itemize}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.7\textwidth]{images/terminal_results_quicksort_basic_15000.png}
+  \caption{Execution times for 15,000 elements across various input types (Basic)}
+\end{figure}
+
+\noindent\hspace*{0.8cm}\textit{Results:}
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{images/QuickSort_Basic_Performance.png}
+  \caption{QuickSort (Basic) Performance Graph}
+\end{figure}
+
+\pagebreak
+
+\subsection*{QuickSort (Optimized)}
+\addcontentsline{toc}{subsection}{QuickSort (Optimized)}
+\hspace{0.8cm} The optimized QuickSort uses Hoare partitioning with a median-of-three pivot and tail-recursion elimination to keep partitions balanced.
+
+\noindent\hspace*{0.8cm}\textit{Hoare Partition (Optimized):}
+\begin{lstlisting}[caption={Hoare Partition Scheme}]
+HoarePartition(A, p, r):
+    pivot = A[p] // After median-of-three placement
+    i = p - 1
+    j = r + 1
+    while true:
+        do i++ while A[i] < pivot
+        do j-- while A[j] > pivot
+        if i >= j: return j
+        swap A[i], A[j]
+\end{lstlisting}
+
+\noindent\hspace*{0.8cm}\textit{Implementation:}
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{images/quicksort_optimized_code.png}
+  \caption{QuickSort (Optimized) implementation in C\#}
+\end{figure}
+
+\noindent\hspace*{0.8cm}\textit{Why Hoare is faster:} 
+Hoare’s scheme performs fewer swaps and keeps equal keys closer together. Combined with a median-of-three pivot, it avoids the extreme unbalanced partitions seen with Lomuto on already ordered inputs.
+
+\noindent\hspace*{0.8cm}\textit{Optimization Summary:}
+Sorted improved from 537.719 ms to 0.949 ms and Reversed from 348.610 ms to 1.392 ms; Duplicates dropped from 28.027 ms to 1.410 ms, while Random increased from 1.789 ms to 2.038 ms due to extra pivot logic.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.7\textwidth]{images/terminal_results_quicksort_optimized_15000.png}
+  \caption{Execution times for 15,000 elements across various input types (Optimized)}
+\end{figure}
+
+\noindent\hspace*{0.8cm}\textit{Results:}
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{images/QuickSort_Optimized_Performance.png}
+  \caption{QuickSort (Optimized) Performance Graph}
+\end{figure}
+
+\pagebreak
+
+\subsection*{HeapSort (Basic)}
+\addcontentsline{toc}{subsection}{HeapSort (Basic)}
+\hspace{0.8cm} HeapSort transforms the array into a Max-Heap structure. It is the only $O(n \log n)$ algorithm here that sorts strictly in-place with $O(1)$ extra memory.
+
+\noindent\hspace*{0.8cm}\textit{Extended Pseudocode:}
+\begin{lstlisting}[caption={HeapSort Logic: Build-Heap and Extract}, label={lst:heap}]
+HeapSort(A):
+    n = A.length
+    // Phase 1: Build Max-Heap
+    for i = (n/2 - 1) down to 0:
+        Heapify(A, n, i)
+        
+    // Phase 2: Extract elements from heap
+    for i = (n - 1) down to 1:
+        swap A[0], A[i] // Move current root to end
+        Heapify(A, i, 0) // Max-heapify the reduced heap
+
+Heapify(A, heapSize, rootIndex):
+    largest = rootIndex
+    l = 2 * rootIndex + 1
+    r = 2 * rootIndex + 2
+    
+    if l < heapSize and A[l] > A[largest]: largest = l
+    if r < heapSize and A[r] > A[largest]: largest = r
+    
+    if largest != rootIndex:
+        swap A[rootIndex], A[largest]
+        Heapify(A, heapSize, largest)
+\end{lstlisting}
+\pagebreak
+\noindent\hspace*{0.8cm}\textit{Implementation:}
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.9\textwidth]{images/heapsort_code.png}
+  \caption{HeapSort implementation in C\#}
+\end{figure}
+
+\noindent\hspace*{0.8cm}\textit{Complexity Scenarios:}
+\begin{itemize}
+    \item \textbf{Best/Average/Worst Case:} $O(n \log n)$. Like MergeSort, the structure of the binary heap ensures that the "height" of the work is always logarithmic, making it immune to the $O(n^2)$ pitfalls of QuickSort.
+\end{itemize}
+
+\noindent\hspace*{0.8cm}\textit{Extreme Cases:}
+\begin{itemize}
+    \item \textbf{Doubles/Negatives:} Fully compatible.
+    \item \textbf{Memory-Constrained Systems:} This is the best choice for extreme cases where memory is limited, as it doesn't use the recursion stack or auxiliary arrays of other sorts.
+\end{itemize}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.7\textwidth]{images/terminal_results_heapsort_basic_15000.png}
+  \caption{Execution times for 15,000 elements across various input types (Basic)}
+\end{figure}
+
+\noindent\hspace*{0.8cm}\textit{Results:}
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{images/HeapSort_Basic_Performance.png}
+  \caption{HeapSort (Basic) Performance Graph}
+\end{figure}
+
+\pagebreak
+
+\subsection*{HeapSort (Optimized)}
+\addcontentsline{toc}{subsection}{HeapSort (Optimized)}
+\hspace{0.8cm} The optimized HeapSort keeps the same max-heap structure but replaces recursive heapify with an iterative sift-down loop to reduce call overhead.
+
+\noindent\hspace*{0.8cm}\textit{Implementation:}
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.9\textwidth]{images/heapsort_optimized_code.png}
+  \caption{HeapSort (Optimized) implementation in C\#}
+\end{figure}
+
+\noindent\hspace*{0.8cm}\textit{Optimization Summary:}
+Random improved from 3.644 ms to 3.373 ms, Sorted from 3.158 ms to 2.611 ms, Reversed from 2.859 ms to 2.488 ms, and Duplicates from 3.325 ms to 3.038 ms.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.7\textwidth]{images/terminal_results_heapsort_optimized_15000.png}
+  \caption{Execution times for 15,000 elements across various input types (Optimized)}
+\end{figure}
+
+\noindent\hspace*{0.8cm}\textit{Results:}
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{images/HeapSort_Optimized_Performance.png}
+  \caption{HeapSort (Optimized) Performance Graph}
+\end{figure}
+
+\pagebreak
+
+\subsection*{PatienceSort (Basic)}
+\addcontentsline{toc}{subsection}{PatienceSort (Basic)}
+\hspace{0.8cm} PatienceSort organizes elements into piles and merges them.
+
+\noindent\hspace*{0.8cm}\textit{Extended Pseudocode:}
+\begin{lstlisting}[caption={Basic PatienceSort (pseudocode)}, label={lst:patience-basic}]
+PatienceSort(A):
+    piles = []
+
+    // Phase 1: Distribute elements into piles
+    for x in A:
+        idx = FindPile(piles, x) // Binary search on pile tops
+        if idx == -1:
+            create new pile in piles with x
+        else:
+            append x to piles[idx]
+
+    // Phase 2: Merge by scanning pile tops
+    for i = 0 to A.length - 1:
+        minVal = +infinity
+        minPile = -1
+        for j = 0 to piles.length - 1:
+            if piles[j] is not empty and piles[j].top() < minVal:
+                minVal = piles[j].top()
+                minPile = j
+        A[i] = piles[minPile].pop()
+        if piles[minPile] is empty: remove it
+\end{lstlisting}
+\pagebreak
+\noindent\hspace*{0.8cm}\textit{Implementation:}
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.9\textwidth]{images/patiencesort_basic_code.png}
+  \caption{PatienceSort (Basic) implementation in C\#}
+\end{figure}
+
+\noindent\hspace*{0.8cm}\textit{Complexity Scenarios:}
+\begin{itemize}
+    \item \textbf{Best Case:} $O(n)$ - Occurs on \textbf{Reverse-Sorted} data. All elements fit into one pile, and the merge phase is trivial.
+    \item \textbf{Worst Case:} $O(n^2)$ - Occurs on \textbf{Sorted} data. Every element creates its own pile, and the final merge phase becomes extremely expensive.
+\end{itemize}
+
+\noindent\hspace*{0.8cm}\textit{Extreme Cases:}
+\begin{itemize}
+    \item \textbf{Negatives:} Handled correctly. 
+    \item \textbf{Doubles:} Requires careful comparison implementation to handle pile selection without precision drift.
+\end{itemize}
+\pagebreak
+\noindent\hspace*{0.8cm}\textit{Results:}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.7\textwidth]{images/terminal_results_patiencesort_basic_15000.png}
+  \caption{Execution times for 15,000 elements across various input types (Basic)}
+\end{figure}
+
+\noindent\hspace*{0.8cm}\textit{Results:}
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{images/PatienceSort_Basic_Performance.png}
+  \caption{PatienceSort (Basic) Performance Graph}
+\end{figure}
+
+\pagebreak
+
+\subsection*{PatienceSort (Optimized)}
+\addcontentsline{toc}{subsection}{PatienceSort (Optimized)}
+\hspace{0.8cm} The optimized version caches pile tops for binary search and uses a priority queue to merge piles efficiently.
+
+\noindent\hspace*{0.8cm}\textit{Implementation:}
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.9\textwidth]{images/patiencesort_optimized_code1.png}
+  \caption{PatienceSort (Optimized) implementation in C\#}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.9\textwidth]{images/patiencesort_optimized_code2.png}
+  \caption{PatienceSort (Optimized) implementation in C\# (BinarySearchPiles)}
+\end{figure}
+
+\noindent\hspace*{0.8cm}\textit{Optimized Pseudocode:}
+\begin{lstlisting}[caption={Optimized PatienceSort with Priority Queue (pseudocode)}, label={lst:patience-optimized}]
+PatienceSort(A):
+    piles = []
+    pileTops = []
+
+    for x in A:
+        idx = BinarySearch(pileTops, x)
+        if idx == -1:
+            create new pile in piles with x
+            append x to pileTops
+        else:
+            append x to piles[idx]
+            pileTops[idx] = x
+
+    PQ = new PriorityQueue()
+    for i = 0 to piles.length - 1:
+        PQ.enqueue(pileIndex: i, priority: pileTops[i])
+
+    for i = 0 to A.length - 1:
+        winningIdx = PQ.dequeue()
+        A[i] = piles[winningIdx].pop()
+        if piles[winningIdx] is not empty:
+            newTop = piles[winningIdx].top()
+            PQ.enqueue(pileIndex: winningIdx, priority: newTop)
+\end{lstlisting}
+
+\noindent\hspace*{0.8cm}\textit{Optimization Summary:}
+Sorted improved from 996.896 ms to 2.462 ms, Random from 32.868 ms to 3.024 ms, Reversed from 0.804 ms to 0.737 ms, and Duplicates from 3.896 ms to 1.405 ms.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.7\textwidth]{images/terminal_results_patiencesort_optimized_15000.png}
+  \caption{Execution times for 15,000 elements across various input types (Optimized)}
+\end{figure}
+
+\noindent\hspace*{0.8cm}\textit{Results:}
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{images/PatienceSort_Optimized_Performance.png}
+  \caption{PatienceSort (Optimized) Performance Graph}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.7\textwidth]{images/overall_benchmark_15000.png}
+  \caption{Execution times for 15,000 for all sorts compared}
+\end{figure}
+
+\pagebreak
+
+\section*{CONCLUSION}
+\addcontentsline{toc}{section}{CONCLUSION}
+
+\hspace{0.8cm} This empirical analysis demonstrates that implementation-specific optimizations can significantly alter the practical performance hierarchy of sorting algorithms, sometimes allowing non-standard algorithms to rival traditional O(nlogn) benchmarks.
+
+\textbf{MergeSort} and \textbf{HeapSort} remained the most consistent performers across all data distributions. However, our benchmarks revealed that while MergeSort is stable, the overhead of auxiliary array creation in C# makes it slightly slower than HeapSort for most distributions, while HeapSort remains the superior choice for memory-constrained environments due to its in-place nature.
+
+The analysis of \textbf{QuickSort} provided a critical lesson in worst-case performance. The basic Lomuto variant degraded sharply on Sorted and Reversed data (537.719 ms and 348.610 ms), while the optimized Hoare variant with median-of-three pivot selection brought those cases down to 0.949 ms and 1.392 ms. The extra pivot logic made the Random case slightly slower (1.789 ms to 2.038 ms), but it eliminated the catastrophic worst-case behavior.
+
+The most significant finding involved the optimized \textbf{PatienceSort}. By integrating a binary search for pile placement and a Min-Heap (Priority Queue) for the k-way merging phase, the algorithm's performance was drastically improved. In our benchmarks for 15,000 elements, PatienceSort improved from 996.896 ms to 2.462 ms on Sorted data and from 32.868 ms to 3.024 ms on Random data, while keeping Reversed near 0.737 ms. This proves that with a $O(n \log p)$ merge strategy (where $p$ is the number of piles), PatienceSort becomes a formidable general-purpose sorter, especially when the input data contains existing decreasing sub-sequences.
+
+In conclusion, while theoretical Big O notation provides a baseline, real-world performance is heavily influenced by constant factors, cache-friendly data structures, and the "sortedness" of the input. For modern applications, the optimized PatienceSort or a randomized QuickSort offer the best performance, provided the memory overhead of pile management is acceptable.
+\pagebreak
+
+\section*{REFERENCES}
+\addcontentsline{toc}{section}{REFERENCES}
+
+\begin{enumerate}[leftmargin=*,label={[\arabic*]}]
+    \item Moisei, D. GitHub Repository. \url{https://github.com/Moisei-D/Algorithm-Analysis} 
+\end{enumerate}
+
+\end{document}
