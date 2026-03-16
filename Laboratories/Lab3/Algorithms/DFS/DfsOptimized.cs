@@ -17,17 +17,12 @@ public sealed class DfsOptimized : ISearchAlgorithm
         var stack = new int[graph.VertexCount];
         var top = 0;
 
+        visited[start] = true;
         stack[top++] = start;
 
         while (top > 0)
         {
             var vertex = stack[--top];
-            if (visited[vertex])
-            {
-                continue;
-            }
-
-            visited[vertex] = true;
             order.Add(vertex);
 
             var neighbors = graph.GetNeighbors(vertex);
@@ -36,6 +31,7 @@ public sealed class DfsOptimized : ISearchAlgorithm
                 var neighbor = neighbors[i];
                 if (!visited[neighbor])
                 {
+                    visited[neighbor] = true;
                     stack[top++] = neighbor;
                 }
             }
