@@ -38,7 +38,7 @@ public static class FloydWarshallOptimized
             }
         }
 
-        return d; // flat array; reshape if needed
+        return d; 
     }
 
     /// <summary>Convenience method that reshapes the flat result back to 2D.</summary>
