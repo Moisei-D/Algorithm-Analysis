@@ -1,4 +1,4 @@
-using Lab4.Algorithms;
+using Lab5.Algorithms;
 using Lab5.Algorithms;
 using Lab5.Graphs;
 using System.Diagnostics;

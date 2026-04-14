@@ -1,4 +1,4 @@
-namespace Lab4.Graphs;
+namespace Lab5.Graphs;
 
 public interface IGraph
 {

@@ -1,4 +1,4 @@
-using Lab4.Graphs;
+using Lab5.Graphs;
 
 namespace Lab5.Graphs;
 

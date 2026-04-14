@@ -1,4 +1,4 @@
-namespace Lab4.Graphs;
+namespace Lab5.Graphs;
 
 public class WeightedGraph : IGraph
 {
@@ -24,6 +24,21 @@ public class WeightedGraph : IGraph
 
     public IReadOnlyList<(int neighbor, double weight)> GetNeighbors(int vertex)
         => _adj[vertex];
+
+    public List<(int u, int v, double w)> GetAllEdges()
+    {
+        var edges = new List<(int, int, double)>();
+        for (int u = 0; u < VertexCount; u++)
+        {
+            foreach (var (v,w) in _adj[u])
+            {
+                if (v > u)  //avoid duplicates
+                    edges.Add((u, v, w));
+            }
+        }
+        return edges;
+    }
+
 
     public double[,] ToAdjacencyMatrix()
     {
