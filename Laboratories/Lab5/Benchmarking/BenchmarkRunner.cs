@@ -1,5 +1,5 @@
 using Lab5.Algorithms;
-using Lab5.Algorithms;
+using Lab5.Benchmarking;
 using Lab5.Graphs;
 using System.Diagnostics;
 
@@ -9,11 +9,11 @@ public static class BenchmarkRunner
 {
     private const int Runs = 5;
 
-    // Vertex counts to test
-    public static readonly int[] Sizes = { 100, 200, 300, 500, 750, 1000, 1500, 2000, 2500, 3000 };
+    // Prim is O((V+E) log V) — can handle large sizes
+    public static readonly int[] PrimSizes = { 100, 200, 300, 500, 750, 1000, 1500, 2000, 2500, 3000 };
 
-    // Floyd–Warshall is O(V^3) — limit its sizes to avoid multi-minute waits
-    public static readonly int[] FWSizes = { 100, 150, 200, 250, 300, 350, 400, 450, 500 };
+    // Kruskal is O(E log E) — bottleneck is sorting; limit dense graphs
+    public static readonly int[] KruskalSizes = { 100, 200, 300, 500, 750, 1000, 1500, 2000, 2500, 3000 };
 
     public static List<BenchmarkResult> RunAll()
     {
@@ -25,69 +25,52 @@ public static class BenchmarkRunner
             string densityName = density.ToString();
             Console.WriteLine($"\n=== Graph Density: {densityName} ===");
 
-            // --- Dijkstra benchmarks (larger sizes) ---
-            foreach (int n in Sizes)
+            // Use the same size set for all 4 algorithms to keep comparisons fair.
+            foreach (int n in PrimSizes)
             {
-                double totalClassic = 0, totalOpt = 0;
+                double totalPrimClassic = 0, totalPrimOpt = 0;
+                double totalKruskalClassic = 0, totalKruskalOpt = 0;
 
                 for (int run = 0; run < Runs; run++)
                 {
+                    // One graph per run, shared by all algorithms.
                     var graph = GraphGenerator.Generate(n, density, rng);
 
-                    // Classic
                     var sw = Stopwatch.StartNew();
-                    DijkstraClassic.Run(graph, 0);
+                    PrimClassic.Run(graph);
                     sw.Stop();
-                    totalClassic += sw.Elapsed.TotalMilliseconds;
+                    totalPrimClassic += sw.Elapsed.TotalMilliseconds;
 
-                    // Optimized
                     sw.Restart();
-                    DijkstraOptimized.Run(graph, 0);
+                    PrimOptimized.Run(graph);
                     sw.Stop();
-                    totalOpt += sw.Elapsed.TotalMilliseconds;
+                                    totalPrimOpt += sw.Elapsed.TotalMilliseconds;
+
+                    sw.Restart();
+                    KruskalClassic.Run(graph);
+                    sw.Stop();
+                    totalKruskalClassic += sw.Elapsed.TotalMilliseconds;
+
+                    sw.Restart();
+                    KruskalOptimized.Run(graph);
+                    sw.Stop();
+                    totalKruskalOpt += sw.Elapsed.TotalMilliseconds;
                 }
 
-                double avgClassic = totalClassic / Runs;
-                double avgOpt = totalOpt / Runs;
+                double avgPrimClassic = totalPrimClassic / Runs;
+                double avgPrimOpt = totalPrimOpt / Runs;
+                double avgKruskalClassic = totalKruskalClassic / Runs;
+                double avgKruskalOpt = totalKruskalOpt / Runs;
 
-                results.Add(new BenchmarkResult(densityName, "DijkstraClassic", n, avgClassic));
-                results.Add(new BenchmarkResult(densityName, "DijkstraOptimized", n, avgOpt));
+                results.Add(new BenchmarkResult(densityName, "PrimClassic", n, avgPrimClassic));
+                results.Add(new BenchmarkResult(densityName, "PrimOptimized", n, avgPrimOpt));
+                results.Add(new BenchmarkResult(densityName, "KruskalClassic", n, avgKruskalClassic));
+                results.Add(new BenchmarkResult(densityName, "KruskalOptimized", n, avgKruskalOpt));
 
-                Console.WriteLine($"  {densityName,-12} {n,5}  DijkstraClassic   {avgClassic:F3} ms");
-                Console.WriteLine($"  {densityName,-12} {n,5}  DijkstraOptimized {avgOpt:F3} ms");
-            }
-
-            // --- Floyd–Warshall benchmarks (smaller sizes due to O(V^3)) ---
-            foreach (int n in FWSizes)
-            {
-                double totalClassic = 0, totalOpt = 0;
-
-                for (int run = 0; run < Runs; run++)
-                {
-                    var graph = GraphGenerator.Generate(n, density, rng);
-                    var matrix = graph.ToAdjacencyMatrix();
-
-                    // Classic
-                    var sw = Stopwatch.StartNew();
-                    FloydWarshallClassic.Run(matrix);
-                    sw.Stop();
-                    totalClassic += sw.Elapsed.TotalMilliseconds;
-
-                    // Optimized
-                    sw.Restart();
-                    FloydWarshallOptimized.RunMatrix(matrix);
-                    sw.Stop();
-                    totalOpt += sw.Elapsed.TotalMilliseconds;
-                }
-
-                double avgClassic = totalClassic / Runs;
-                double avgOpt = totalOpt / Runs;
-
-                results.Add(new BenchmarkResult(densityName, "FloydWarshallClassic", n, avgClassic));
-                results.Add(new BenchmarkResult(densityName, "FloydWarshallOptimized", n, avgOpt));
-
-                Console.WriteLine($"  {densityName,-12} {n,5}  FloydWarshallClassic   {avgClassic:F3} ms");
-                Console.WriteLine($"  {densityName,-12} {n,5}  FloydWarshallOptimized {avgOpt:F3} ms");
+                Console.WriteLine($"  {densityName,-12} {n,5}  PrimClassic       {avgPrimClassic:F3} ms");
+                Console.WriteLine($"  {densityName,-12} {n,5}  PrimOptimized     {avgPrimOpt:F3} ms");
+                Console.WriteLine($"  {densityName,-12} {n,5}  KruskalClassic    {avgKruskalClassic:F3} ms");
+                Console.WriteLine($"  {densityName,-12} {n,5}  KruskalOptimized  {avgKruskalOpt:F3} ms");
             }
         }
 

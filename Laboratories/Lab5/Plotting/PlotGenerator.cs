@@ -1,8 +1,8 @@
+using Lab5.Benchmarking;
 using OxyPlot;
 using OxyPlot.Axes;
 using OxyPlot.Legends;
 using OxyPlot.Series;
-using Lab5.Benchmarking;
 
 namespace Lab5.Plotting;
 
@@ -16,11 +16,6 @@ public static class PlotGenerator
         OxyColors.Purple,
     };
 
-    /// <summary>
-    /// Generates one PNG per (graphType × algorithmPair) combination.
-    /// E.g. "VerySparse_Dijkstra.png", "Dense_FloydWarshall.png", etc.
-    /// 16 plots total: 4 densities × 2 algorithm families × 2 variants = 16.
-    /// </summary>
     public static void GenerateAll(List<BenchmarkResult> results, string outputDir)
     {
         Directory.CreateDirectory(outputDir);
@@ -28,10 +23,10 @@ public static class PlotGenerator
         var densities = results.Select(r => r.GraphType).Distinct().ToList();
         var algoGroups = new[]
         {
-            new[] { "DijkstraClassic",        "DijkstraOptimized"       },
-            new[] { "FloydWarshallClassic",    "FloydWarshallOptimized"  },
+            new[] { "PrimClassic",    "PrimOptimized"    },
+            new[] { "KruskalClassic", "KruskalOptimized" },
         };
-        string[] groupNames = { "Dijkstra", "FloydWarshall" };
+        string[] groupNames = { "Prim", "Kruskal" };
 
         foreach (var density in densities)
         {
@@ -68,14 +63,12 @@ public static class PlotGenerator
             Position = AxisPosition.Bottom,
             Title = xLabel,
             MajorGridlineStyle = LineStyle.Dot,
-            MinorGridlineStyle = LineStyle.None,
         });
         model.Axes.Add(new LinearAxis
         {
             Position = AxisPosition.Left,
             Title = yLabel,
             MajorGridlineStyle = LineStyle.Dot,
-            MinorGridlineStyle = LineStyle.None,
         });
 
         var legend = new Legend
