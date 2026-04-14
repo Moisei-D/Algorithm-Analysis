@@ -1,4 +1,4 @@
-namespace Lab5.Algorithms;
+namespace Lab4.Algorithms;
 
 /// <summary>
 /// Classic Floyd–Warshall: O(V^3) time, O(V^2) space.

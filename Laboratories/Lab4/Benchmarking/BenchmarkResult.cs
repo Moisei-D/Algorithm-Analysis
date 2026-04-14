@@ -1,4 +1,4 @@
-namespace Lab5.Benchmarking;
+namespace Lab4.Benchmarking;
 
 public record BenchmarkResult(
     string GraphType,

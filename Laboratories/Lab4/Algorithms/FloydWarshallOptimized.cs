@@ -1,4 +1,4 @@
-namespace Lab5.Algorithms;
+namespace Lab4.Algorithms;
 
 /// <summary>
 /// Optimized Floyd–Warshall using:

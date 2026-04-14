@@ -1,9 +1,9 @@
 using Lab4.Algorithms;
-using Lab5.Algorithms;
-using Lab5.Graphs;
+using Lab4.Algorithms;
+using Lab4.Graphs;
 using System.Diagnostics;
 
-namespace Lab5.Benchmarking;
+namespace Lab4.Benchmarking;
 
 public static class BenchmarkRunner
 {

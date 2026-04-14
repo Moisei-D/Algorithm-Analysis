@@ -2,9 +2,9 @@ using OxyPlot;
 using OxyPlot.Axes;
 using OxyPlot.Legends;
 using OxyPlot.Series;
-using Lab5.Benchmarking;
+using Lab4.Benchmarking;
 
-namespace Lab5.Plotting;
+namespace Lab4.Plotting;
 
 public static class PlotGenerator
 {

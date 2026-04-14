@@ -1,5 +1,5 @@
-﻿using Lab5.Benchmarking;
-using Lab5.Plotting;
+﻿using Lab4.Benchmarking;
+using Lab4.Plotting;
 
 Console.WriteLine("Lab 5 — Dijkstra & Floyd-Warshall Empirical Analysis");
 Console.WriteLine("======================================================\n");

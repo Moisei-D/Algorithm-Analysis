@@ -1,7 +1,6 @@
 using Lab4.Graphs;
-using Lab5.Graphs;
 
-namespace Lab5.Algorithms;
+namespace Lab4.Algorithms;
 
 /// <summary>
 /// Optimized Dijkstra using a binary min-heap (PriorityQueue from .NET 6+).

@@ -1,6 +1,6 @@
 using Lab4.Graphs;
 
-namespace Lab5.Graphs;
+namespace Lab4.Graphs;
 
 /// <summary>
 /// Generates weighted undirected graphs at four density levels:

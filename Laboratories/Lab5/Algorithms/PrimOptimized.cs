@@ -1,7 +1,7 @@
 ﻿using Lab5.Graphs;
 using Lab5.Graphs;
 
-namespace Lab7.Algorithms;
+namespace Lab5.Algorithms;
 
 /// <summary>
 /// Optimized Prim's MST using a binary min-heap (PriorityQueue)
